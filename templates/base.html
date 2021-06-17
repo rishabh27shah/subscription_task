@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                background-color: #0f0e0fba;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            /* Add padding to containers */
+            .container {
+                background-color: white;
+            }
+
+            /* Full-width input fields */
+            input[type=text]{
+                width: 100%;
+                padding: 15px;
+                margin: 5px 0 22px 0;
+                display: inline-block;
+                border: none;
+                background: #f1f1f1;
+            }
+
+            input[type=text], select {
+                width: 100%;
+                padding: 12px 20px;
+                margin: 8px 0;
+                display: inline-block;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+
+            input[type=text]:focus{
+                background-color: #ddd;
+                outline: none;
+            }
+
+            /* Overwrite default styles of hr */
+            hr {
+                border: 1px solid #f1f1f1;
+                margin-bottom: 25px;
+            }
+
+            .subscribebtn:hover {
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <form id="myForm">
+                <div class="container">
+                    <h3 class="pt-3">Subscription Form</h3>
+                    <p>Please fill in this form to subscribe.</p>
+                    <hr>
+                    <label for="name"><b>Customer Name <sup>*</sup></b></label>
+                    <input type="text" placeholder="Enter name" name="name" id="name" >
+
+                    <label for="email"><b>Email<sup>*</sup></b></label>
+                    <input type="text" placeholder="Enter Email" name="email" id="email" >
+                    <h3  style="text-align: center;" id="email-errors"></h3>
+
+                    <label for="subscription_type"><b>Subscription Type<sup>*</sup></b></label>
+                    <select name="subscription_type" id="subscription_type">
+                        <option value="Free">Free</option>
+                        <option value="Plus">Plus</option>
+                        <option value="Pro">Pro</option>
+                    </select><br><br>
+                    <button type="submit" class="btn btn-primary subscribebtn">Subscribe</button>
+                    <hr>
+
+                </div>
+            </form>
+            <h3>Records:</h3>
+            <div id="list-table">
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
+
+    <script>
+        const myForm = document.getElementById("myForm");
+        const email = document.getElementById("email");
+        var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+        function subscriptiontable(){
+            fetch(`{% url 'subscription-list' %}`, {
+                method: "GET",
+                headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "Content-Type": "application/json; charset=utf-8",
+                },
+                credentials: "same-origin"
+            }).then(async response=>{
+                document.getElementById("list-table").innerHTML=await response.text();
+            });
+        }
+
+        myForm.addEventListener("submit", function(e) {
+            e.preventDefault();
+            var inputTags = document.getElementsByTagName("input");
+            var name = document.getElementById("name");
+            var email = document.getElementById("email");
+            var subscriptionType = document.getElementById("subscription_type");
+            if (inputTags[0].value != "" && inputTags[1].value != "" && email.value.match(mailformat)) {
+                fetch(`{% url 'subscription-page' %}`, {
+                    method: "POST",
+                    headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                            "Content-Type": "application/json; charset=utf-8",
+                    },
+                    credentials: "same-origin",
+                    body: JSON.stringify({"customername":name.value,"email":email.value,"subscriptiontype":subscriptionType.value})
+                }).then(function(response){
+                    if(response.ok){
+                        alert('Record added!');
+                        subscriptiontable();
+                    }
+                });
+            }
+            else{
+                alert("Please fill all the details to subscribe or check if email is valid");
+            }
+        });
+
+        email.addEventListener("blur", function() {
+            if (!email.value.match(mailformat)) {
+                alert("Invalid email");
+            }
+        });
+        subscriptiontable();
+    </script>
+</html>

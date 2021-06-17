@@ -1,0 +1,24 @@
+{% if all_subscriptions %}
+    <table class="table table-light table-hover">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Customer Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Subscription Type</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for data in all_subscriptions %}
+            <tr>
+                <th scope="row">{{ data.id }}</th>
+                <td>{{ data.customer_name }}</td>
+                <td>{{ data.email }}</td>
+                <td>{{ data.subscription_type }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <h2>Currently! There are no records. Please fill form to see submitted records.</h2>
+{% endif %}
